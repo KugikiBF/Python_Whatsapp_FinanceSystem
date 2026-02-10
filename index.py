@@ -23,10 +23,13 @@ class ControleFinanceiro:
         
 
     def _tratar_data(self):
-        data = input("Vencimento (pode ser 25/01/2026, 25-01-2026 ou 25012026): ")
-        data_limpa = data.replace("-", "").replace("/", "").replace(".", "")
-        if len(data_limpa) != 8:
-            return self._tratar_data()
+        while True:
+            data = input("Vencimento (pode ser 25/01/2026, 25-01-2026 ou 25012026): ")
+            data_limpa = data.replace("-", "").replace("/", "").replace(".", "")
+            if len(data_limpa) != 8:
+                print('Opa... Essa data está estranha tente de novo.')
+                continue
+            break
             
         dia = data_limpa[:2]   
         mes = data_limpa[2:4]  
@@ -36,7 +39,6 @@ class ControleFinanceiro:
         return data_corrigida
 
     def adicionar_gasto(self):
-        self.df=self._criar_carregar()
         # PEGA O TIPO DE CONTA (ENTRADA/SAIDA)
         while True:
             try:
@@ -69,10 +71,15 @@ class ControleFinanceiro:
                     continue 
                 break
             except:
-                print("Opção Inválida! Somente números de [1 á 5].")
+                print(f"Opção Inválida! Somente números de [1 á {len(categ_salva)}].")
         categ_salva=categ_salva[categ-1]
         # PEGA A DESCRIÇÃO DA CONTA
-        desc = input("Descrição (ex: Gasolina): ").capitalize()
+        while True:
+            desc = input("Descrição (ex: Gasolina): ").capitalize()
+            if desc != '':
+                break
+            else: 
+                print("Ops... Não esqueça de colocar a descrição.")
         # PEGA O VALOR DA CONTA
         while True:
             try:
@@ -83,20 +90,29 @@ class ControleFinanceiro:
         # PEGA O VENCIMENTO DA CONTA
         data=self._tratar_data()
         # PEGA O STATUS DA CONTA
-        status = input("Status (Pago/Pendente): ").lower().capitalize()
+        while True:
+            status = input("Status (Pago/Pendente): ").lower().capitalize()
+            if status not in ['Pago','Pendente']:
+                print("Erro: O status tem que ser 'Pago' ou 'Pendente'")
+            break
                 
-
-        nova_linha={
-            'Tipo':tipo,
-            'Descricao':desc,
-            'Categoria':categ_salva,
-            'Valor':valor,
-            'Vencimento':data,
-            'Status':status
+        nova_linha = {
+        'Tipo': tipo,
+        'Descricao': desc,
+        'Categoria': categ_salva,
+        'Valor': valor,
+        'Vencimento': data,
+        'Status': status
         }
-
-        self.df = self.df._append(nova_linha, ignore_index=True)
+        novo_df = pd.DataFrame([nova_linha])
+        if not self.df.empty:
+            self.df = pd.concat([self.df, novo_df], ignore_index=True)
+        else:
+            self.df = novo_df
+        self.df['Vencimento']= pd.to_datetime(self.df['Vencimento'])
         self.df.to_excel(self.arquivo, index=False, engine='openpyxl')
+        self._formatar()
+
 
     def gerar_graficos(self):
         mostrar_grafico=(input("Você quer ver um gráfico sobre as contas?\n" \
@@ -114,17 +130,17 @@ class ControleFinanceiro:
                 self._grafico_lucro()
         else:
             print("Opção inválida! Prosseguindo...")
-        self._formatar()
+
 
     def _grafico_gastos_gerais(self):
         erro=self._verificar_df()
         if erro:
             return print(erro)
-        self.df['Vencimento']= pd.to_datetime(self.df['Vencimento'])
-        gastos_pagos=self.df[self.df['Status']=='Pago']['Valor'].sum()
-        gastos_pendentes=self.df[self.df["Status"]=='Pendente']['Valor'].sum()
-        categories=['Pago','Pendente']
-        values=[gastos_pagos,gastos_pendentes]
+        df_saidas = self.df[self.df['Tipo'] == 'Saida'].copy()
+        total_pago = df_saidas[df_saidas['Status'] == 'Pago']['Valor'].sum()
+        total_pendente = df_saidas[df_saidas['Status'] == 'Pendente']['Valor'].sum()
+        categories=['Pago', 'Pendente']
+        values=[total_pago, total_pendente]
         plt.bar(categories, values, color=['green','red'])
         plt.title("Status das Contas - Janeiro 2026")
         plt.ylabel('Valor (R$)')
@@ -140,12 +156,13 @@ class ControleFinanceiro:
         erro=self._verificar_df()
         if erro:
             return print(erro)
-        soma_por_categoria= self.df.groupby('Categoria')["Valor"].sum()
-        plt.figure()
+        df_saidas = self.df[self.df['Tipo'] == 'Saida'].copy()
+        soma_por_categoria= df_saidas.groupby('Categoria')["Valor"].sum()
         soma_por_categoria.plot(kind="pie", autopct="%1.1f%%")
         plt.title("Gastos Por Setor")
         plt.ylabel('')
         plt.show()
+
 
     def _grafico_lucro(self):
         erro=self._verificar_df()
@@ -171,10 +188,11 @@ class ControleFinanceiro:
     def _formatar(self):
         wb = load_workbook(self.arquivo)
         ws = wb.active
-        ws.column_dimensions['A'].width = 30
+        ws.column_dimensions['E'].width = 30
         ws.column_dimensions['B'].width = 15
         ws.column_dimensions['C'].width = 15
-        ws.column_dimensions['D'].width = 20
+        ws.column_dimensions['D'].width = 12
+        ws.column_dimensions['F'].width = 12
         wb.save(self.arquivo)
 
 
@@ -182,17 +200,25 @@ class ControleFinanceiro:
 
 sistema = ControleFinanceiro()
 while True:
-    continuar=int(input("[1] Para Adicionar\n"
-    "[2] Para Mostrar Gráficos\n"
-    "[3] Para Sair\n"
-    "Escolha: "))
-    if continuar == 1:
-        sistema.adicionar_gasto()
-    elif continuar == 2:
-        sistema.gerar_graficos()
-    elif continuar == 3:
-        print('Saindo...')
-        break
-    else:
-        print("Erro: Escolha inválida")
+    print("\n--- MENU FINANCEIRO ---")
+    try:
+        continuar = int(input("[1] Adicionar Gasto\n"
+                              "[2] Mostrar Gráficos\n"
+                              "[3] Sair\n"
+                              "Escolha: "))
+        
+        if continuar == 1:
+            sistema.adicionar_gasto()
+        elif continuar == 2:
+            sistema.gerar_graficos()
+        elif continuar == 3:
+            print('Salvando e Saindo...')
+            break
+        else:
+            print("Erro: Escolha um número entre 1 e 3.")
+            
+    except ValueError:
+        print("Erro: Digite apenas números!")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
 
