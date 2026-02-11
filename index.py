@@ -104,15 +104,22 @@ class ControleFinanceiro:
         'Vencimento': data,
         'Status': status
         }
-        novo_df = pd.DataFrame([nova_linha])
-        if not self.df.empty:
-            self.df = pd.concat([self.df, novo_df], ignore_index=True)
-        else:
-            self.df = novo_df
-        self.df['Vencimento']= pd.to_datetime(self.df['Vencimento'])
-        self.df.to_excel(self.arquivo, index=False, engine='openpyxl')
-        self._formatar()
+        self.salvar_excel(nova_linha)
 
+
+    def adicionar_pelo_wpp(self,valor,descricao,categoria):
+        tipo = 'Entrada' if categoria in self.categorias ['Entradas'] else 'Saida'
+        data= datetime.now().strftime("%Y-%m-%d")
+        nova_linha = {
+            'Tipo': tipo,
+            'Descricao': descricao.capitalize(),
+            'Categoria': categoria,
+            'Valor': float(valor),
+            'Vencimento': data,
+            'Status': 'Pago' 
+        }
+        self.salvar_excel(nova_linha)
+        return f"✅ {tipo} de R$ {valor} em '{descricao}' salva!"
 
     def gerar_graficos(self):
         mostrar_grafico=(input("Você quer ver um gráfico sobre as contas?\n" \
@@ -196,29 +203,43 @@ class ControleFinanceiro:
         wb.save(self.arquivo)
 
 
-
-
-sistema = ControleFinanceiro()
-while True:
-    print("\n--- MENU FINANCEIRO ---")
-    try:
-        continuar = int(input("[1] Adicionar Gasto\n"
-                              "[2] Mostrar Gráficos\n"
-                              "[3] Sair\n"
-                              "Escolha: "))
-        
-        if continuar == 1:
-            sistema.adicionar_gasto()
-        elif continuar == 2:
-            sistema.gerar_graficos()
-        elif continuar == 3:
-            print('Salvando e Saindo...')
-            break
+    def salvar_excel(self,linha):
+        novo_df = pd.DataFrame([linha])
+        if not self.df.empty:
+            self.df = pd.concat([self.df, novo_df], ignore_index=True)
         else:
-            print("Erro: Escolha um número entre 1 e 3.")
+            self.df = novo_df
+        self.df['Vencimento']= pd.to_datetime(self.df['Vencimento'])
+        self.df.to_excel(self.arquivo, index=False, engine='openpyxl')
+        self._formatar()
+
+
+
+
+
+
+
+# sistema = ControleFinanceiro()
+# while True:
+#     print("\n--- MENU FINANCEIRO ---")
+#     try:
+#         continuar = int(input("[1] Adicionar Gasto\n"
+#                               "[2] Mostrar Gráficos\n"
+#                               "[3] Sair\n"
+#                               "Escolha: "))
+        
+#         if continuar == 1:
+#             sistema.adicionar_gasto()
+#         elif continuar == 2:
+#             sistema.gerar_graficos()
+#         elif continuar == 3:
+#             print('Salvando e Saindo...')
+#             break
+#         else:
+#             print("Erro: Escolha um número entre 1 e 3.")
             
-    except ValueError:
-        print("Erro: Digite apenas números!")
-    except Exception as e:
-        print(f"Erro inesperado: {e}")
+#     except ValueError:
+#         print("Erro: Digite apenas números!")
+#     except Exception as e:
+#         print(f"Erro inesperado: {e}")
 
