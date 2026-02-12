@@ -1,5 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("Agg")
 from datetime import datetime
 from openpyxl import load_workbook
 import os
@@ -107,19 +109,7 @@ class ControleFinanceiro:
         self.salvar_excel(nova_linha)
 
 
-    def adicionar_pelo_wpp(self,valor,descricao,categoria):
-        tipo = 'Entrada' if categoria in self.categorias ['Entradas'] else 'Saida'
-        data= datetime.now().strftime("%Y-%m-%d")
-        nova_linha = {
-            'Tipo': tipo,
-            'Descricao': descricao.capitalize(),
-            'Categoria': categoria,
-            'Valor': float(valor),
-            'Vencimento': data,
-            'Status': 'Pago' 
-        }
-        self.salvar_excel(nova_linha)
-        return f"✅ {tipo} de R$ {valor} em '{descricao}' salva!"
+
 
     def gerar_graficos(self):
         mostrar_grafico=(input("Você quer ver um gráfico sobre as contas?\n" \
@@ -215,6 +205,80 @@ class ControleFinanceiro:
 
 
 
+
+
+
+    def adicionar_pelo_wpp(self,valor,descricao,categoria):
+        tipo = 'Entrada' if categoria in self.categorias ['Entradas'] else 'Saida'
+        data= datetime.now().strftime("%Y-%m-%d")
+        nova_linha = {
+            'Tipo': tipo,
+            'Descricao': descricao.capitalize(),
+            'Categoria': categoria,
+            'Valor': float(valor),
+            'Vencimento': data,
+            'Status': 'Pago' 
+        }
+        self.salvar_excel(nova_linha)
+        return f"✅ {tipo} de R$ {valor} em '{descricao}' salva!"
+    
+
+    def grafico_lucro_wpp(self):
+        erro=self._verificar_df()
+        if erro:
+            return print(erro)
+        soma_entrada=self.df[self.df['Tipo'] == 'Entrada']['Valor'].sum()
+        soma_saida=self.df[self.df['Tipo'] == 'Saida']['Valor'].sum()
+        saldo=soma_entrada-soma_saida
+        nome=['Entradas','Saídas']
+        valores=[soma_entrada,soma_saida]
+        plt.figure(figsize=(6,5))
+        plt.bar(nome,valores,color=["green", 'red'])
+        if saldo >= 0:
+            cor_saldo = 'green'
+            texto_saldo = f"LUCRO: R$ {saldo:.2f}"
+        else:
+            cor_saldo = 'red'
+            texto_saldo = f"PREJUÍZO: R$ {saldo:.2f}"
+        plt.title(f"Balanço do Mês\n{texto_saldo}",color=cor_saldo,fontweight='bold')
+        plt.ylabel('Valor (R$)')
+        plt.savefig('static/lucro.png')
+        plt.close('all')
+        return 'lucro.png'
+
+
+
+
+    def grafico_setor_wpp(self):
+        erro=self._verificar_df()
+        if erro:
+            return print(erro)
+        df_saidas = self.df[self.df['Tipo'] == 'Saida'].copy()
+        soma_por_categoria= df_saidas.groupby('Categoria')["Valor"].sum()
+        soma_por_categoria.plot(kind="pie", autopct="%1.1f%%")
+        plt.title("Gastos Por Setor")
+        plt.ylabel('')
+        plt.savefig('static/pizza.png')
+        plt.close('all')
+        return 'pizza.png'
+
+
+
+    def grafico_gerais_wpp(self):
+        erro=self._verificar_df()
+        if erro:
+            return print(erro)
+        df_saidas = self.df[self.df['Tipo'] == 'Saida'].copy()
+        total_pago = df_saidas[df_saidas['Status'] == 'Pago']['Valor'].sum()
+        total_pendente = df_saidas[df_saidas['Status'] == 'Pendente']['Valor'].sum()
+        categories=['Pago', 'Pendente']
+        values=[total_pago, total_pendente]
+        plt.bar(categories, values, color=['green','red'])
+        plt.title("Status das Contas - Janeiro 2026")
+        plt.ylabel('Valor (R$)')
+        plt.savefig('static/gerais.png')
+        plt.close('all')
+        return 'gerais.png'
 
 
 
