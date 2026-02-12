@@ -11,7 +11,8 @@ estado_usuario={}
 @app.route('/bot', methods=['POST'])
 def bot():
     wpp_id=request.values.get("From")
-    base_url = request.url_root.replace("http://", "https://")
+    host = request.headers.get('Host')
+    base_url = f"https://{host}/"
     mensagem_usuario= request.values.get("Body", '').strip()
 
     resp=MessagingResponse()
@@ -22,19 +23,19 @@ def bot():
         if mensagem_usuario == '1':
             msg.body("*Balanço geral:*")
             sistema.grafico_lucro_wpp()
-            msg.media(f'{base_url}static/lucro.png')
+            # msg.media(f'{base_url}static/lucro.png?v={randint(1,10000)}')
             del estado_usuario[wpp_id]
 
         elif mensagem_usuario =='2':
             msg.body("*Gráfico por categoria:*")
             sistema.grafico_setor_wpp()
-            msg.media(f'{base_url}static/pizza.png')
+            # msg.media(f'{base_url}static/pizza.png?v={randint(1,10000)}')
             del estado_usuario[wpp_id]
 
         elif mensagem_usuario =='3':
             msg.body("*Gastos Pagos/Pendentes:*")
             sistema.grafico_gerais_wpp()
-            msg.media(f'{base_url}static/gerais.png')
+            # msg.media(f'{base_url}static/gerais.png?v={randint(1,10000)}')
             del estado_usuario[wpp_id]
         elif mensagem_usuario =='4':
             msg.body('Saindo Do Menu...')
@@ -79,4 +80,4 @@ def bot():
     return str(resp)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
