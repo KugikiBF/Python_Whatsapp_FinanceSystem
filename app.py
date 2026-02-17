@@ -14,7 +14,6 @@ def bot():
     host = request.headers.get('Host')
     base_url = f"https://{host}/"
     mensagem_usuario= request.values.get("Body", '').strip()
-
     resp=MessagingResponse()
     msg=resp.message()
     mensagem_dividida=mensagem_usuario.split()
@@ -58,8 +57,22 @@ def bot():
 
 
     elif mensagem_usuario == '?':
-        msg.body(f"Para adicionar um gasto é necessário seguir um padrão que seria:\n    (*Valor* *Descrição* *Categoria*)\n\nAs categorias são divididas em 2, uma para saidas, e outra para entradas.\n\n*Saídas:*\n    {', '.join(sistema.categorias["Saidas"])}.\n*Entradas:*\n    {', '.join(sistema.categorias["Entradas"])}.")
-       
+            todas_saidas = ', '.join(sistema.categorias["Saidas"])
+            todas_entradas = ', '.join(sistema.categorias["Entradas"])
+            
+            texto_ajuda = (
+                "🤖 *GUIA DE FUNCIONALIDADES*\n\n"
+                "📝 *Adicionar Gasto:* `Valor Descrição Categoria` \n"
+                "_(Ex: 50 Uber Lazer)_\n\n"
+                "📊 *Relatórios:* Digite `resumo` para ver gráficos e histórico.\n\n"
+                "🔍 *Buscar:* `buscar: termo` \n"
+                "_(Ex: buscar: mercado)_\n\n"
+                "🗑️ *Apagar:* Digite `excluir` para remover o último lançamento.\n\n"
+                "📌 *Categorias Disponíveis:*\n"
+                f"🔺 *Saídas:* {todas_saidas}\n"
+                f"🔹 *Entradas:* {todas_entradas}"
+            )
+            msg.body(texto_ajuda)
 
 
     elif mensagem_usuario.lower() == 'resumo':
@@ -68,31 +81,31 @@ def bot():
         
         
 
-    elif len(mensagem_dividida)>=3:
+    elif len(mensagem_dividida) >= 3:
         try:
-            valor= mensagem_dividida[0].replace(',','.')
-            descricao=mensagem_dividida[1]
-            categoria=mensagem_dividida[2].capitalize()
-
-            todas_categ=sistema.categorias['Saidas'] + sistema.categorias['Entradas']
+            valor_limpo = mensagem_dividida[0].replace(',', '.')
+            float(valor_limpo) # Validação técnica
+            
+            descricao = mensagem_dividida[1]
+            categoria = mensagem_dividida[2].capitalize()
+            todas_categ = sistema.categorias['Saidas'] + sistema.categorias['Entradas']
             
             if categoria in todas_categ:
-                resultado = sistema.adicionar_pelo_wpp(valor, descricao, categoria)
+                resultado = sistema.adicionar_pelo_wpp(valor_limpo, descricao, categoria)
                 msg.body(resultado)
             else:
                 msg.body(f"❌ Categoria '{categoria}' não existe.\nUse: {', '.join(todas_categ)}")
         except ValueError:
-            msg.body("❌ Erro no valor! Use: 'Valor' 'Descricao' 'Categoria' (Ex: 50 Uber Lazer)")
+            msg.body("🤖 Formato incorreto. Para salvar use: `Valor Descricao Categoria`")
             
 
     else:
-        print("Caiu no else!") # Isso aparece no seu terminal
-        msg.body("TESTE DE CONEXÃO: O BOT ESTÁ VIVO")
+        msg.body("🤖 Olá! Não entendi seu comando.\n\nDigite `?` para ver tudo o que eu posso fazer!")
         
     
-    # No final do seu def bot():
+    
     response_xml = str(resp)
-    print(f"DEBUG XML: {response_xml}") # VEJA SE APARECE O TEXTO AQUI NO TERMINAL
+    print(f"DEBUG XML: {response_xml}") 
     return response_xml, 200, {'Content-Type': 'text/xml'}
 
 if __name__ == '__main__':
