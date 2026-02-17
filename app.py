@@ -42,28 +42,30 @@ def bot():
             del estado_usuario[wpp_id]
         else:
             msg.body("Opção inválida! Digite (*1 2 3 4*) para ver os gráficos")
-        return str(resp)
+      
 
     elif mensagem_usuario.lower() == 'excluir':
         msg.body(f"{sistema.excluir_lançamento()}")
+       
 
 
     elif mensagem_usuario.lower().startswith("buscar:"):
         termo=mensagem_usuario.split(":")[1].strip()
         resposta=sistema.buscar_wpp(termo)
         msg.body(resposta)
-
+        
 
 
 
     elif mensagem_usuario == '?':
         msg.body(f"Para adicionar um gasto é necessário seguir um padrão que seria:\n    (*Valor* *Descrição* *Categoria*)\n\nAs categorias são divididas em 2, uma para saidas, e outra para entradas.\n\n*Saídas:*\n    {', '.join(sistema.categorias["Saidas"])}.\n*Entradas:*\n    {', '.join(sistema.categorias["Entradas"])}.")
+       
 
 
     elif mensagem_usuario.lower() == 'resumo':
         estado_usuario[wpp_id] = 'MENU_GRAFICOS'
         msg.body("📊 *Menu de Gráficos*\n\n1 - Balanço Geral (Barras)\n2 - Gastos por Categoria (Pizza)\n3 - Gastos pagos e pendentes (Barras)\n4 - Ver Histórico \n\nDigite o número desejado:")
-        return str(resp)
+        
         
 
     elif len(mensagem_dividida)>=3:
@@ -81,13 +83,17 @@ def bot():
                 msg.body(f"❌ Categoria '{categoria}' não existe.\nUse: {', '.join(todas_categ)}")
         except ValueError:
             msg.body("❌ Erro no valor! Use: 'Valor' 'Descricao' 'Categoria' (Ex: 50 Uber Lazer)")
-
+            
 
     else:
-        msg.body("🤖 Comandos:\nPara salvar: *Valor Descricao Categoria*\nEx: 50 Pizza Lazer\n"
-                 "Para dúvidas: Digite ('?')")
+        print("Caiu no else!") # Isso aparece no seu terminal
+        msg.body("TESTE DE CONEXÃO: O BOT ESTÁ VIVO")
+        
     
-    return str(resp)
+    # No final do seu def bot():
+    response_xml = str(resp)
+    print(f"DEBUG XML: {response_xml}") # VEJA SE APARECE O TEXTO AQUI NO TERMINAL
+    return response_xml, 200, {'Content-Type': 'text/xml'}
 
 if __name__ == '__main__':
     app.run(debug=True)

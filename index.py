@@ -223,15 +223,18 @@ class ControleFinanceiro:
         busca=self.df['Descricao'].str.contains(busc,case=False)
         encontrados=self.df[busca]
         if encontrados.empty:
-            return "Nada Encontrado..."
-        texto=""
+            return f"Nada Encontrado para: *{busc}*..."
+        total=0
+        texto = f"🔍 *Resultados para: {busc}*\n\n"
         for _,i in encontrados.iterrows():
             if i['Tipo'] == 'Saida':
                 tipo='🔴' 
+                total-=i['Valor']
             else:
                 tipo='🟢'
+                total+=i['Valor']
             texto+=f"{tipo} {i['Descricao']} - ({i['Categoria']}): R$ {i['Valor']:.2f}\n"
-        return (texto)
+        return "Teste de busca funcionando"
         
 
     def excluir_lançamento(self):
