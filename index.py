@@ -204,9 +204,44 @@ class ControleFinanceiro:
         self._formatar()
 
 
+    def historico_contas(self):
+        if self._verificar_df():
+            return "Arquivo Vazio!"
+        
+        texto='📜*Ultimos Lançamentos*\n\n'
+        for _,i in self.df.tail(5).iterrows():
+            if i['Tipo'] == 'Saida':
+                tipo='🔴' 
+            else:
+                tipo='🟢'
+            texto+=f"{tipo} {i['Descricao']} - ({i['Categoria']}): R$ {i['Valor']:.2f}\n"
+        return (texto)
 
+    def buscar_wpp (self,busc):
+        if self._verificar_df():
+            return "Arquivo Vazio!"
+        busca=self.df['Descricao'].str.contains(busc,case=False)
+        encontrados=self.df[busca]
+        if encontrados.empty:
+            return "Nada Encontrado..."
+        texto=""
+        for _,i in encontrados.iterrows():
+            if i['Tipo'] == 'Saida':
+                tipo='🔴' 
+            else:
+                tipo='🟢'
+            texto+=f"{tipo} {i['Descricao']} - ({i['Categoria']}): R$ {i['Valor']:.2f}\n"
+        return (texto)
+        
 
-
+    def excluir_lançamento(self):
+        if self._verificar_df():
+            return "Arquivo Vazio!"
+        ultimo=self.df.index[-1]
+        self.df=self.df.drop(axis=0, index=ultimo)
+        self.df.to_excel(self.arquivo, index=False, engine='openpyxl')
+        self._formatar()
+        return ("✅ *Último lançamento removido com sucesso!*")
 
     def adicionar_pelo_wpp(self,valor,descricao,categoria):
         tipo = 'Entrada' if categoria in self.categorias ['Entradas'] else 'Saida'
@@ -255,14 +290,25 @@ class ControleFinanceiro:
             return print(erro)
         df_saidas = self.df[self.df['Tipo'] == 'Saida'].copy()
         soma_por_categoria= df_saidas.groupby('Categoria')["Valor"].sum()
-        soma_por_categoria.plot(kind="pie", autopct="%1.1f%%")
+        total=soma_por_categoria.sum()
+        def formatar_legenda(pct):
+            valor_real = (pct/100) * total
+            return f'R$ {valor_real:.2f}\n({pct:.1f}%)'
+        plt.figure(figsize=(8, 6))
+        plt.pie(
+            soma_por_categoria, 
+            labels=soma_por_categoria.index, 
+            autopct=formatar_legenda,
+            startangle=140,
+            pctdistance=0.85,    
+            labeldistance=1.1,
+            explode=[0.2, 0.2, 0.1, 0.2]
+        )
         plt.title("Gastos Por Setor")
         plt.ylabel('')
         plt.savefig('static/pizza.png')
         plt.close('all')
         return 'pizza.png'
-
-
 
     def grafico_gerais_wpp(self):
         erro=self._verificar_df()
@@ -284,6 +330,7 @@ class ControleFinanceiro:
 
 
 # sistema = ControleFinanceiro()
+# sistema.buscar_wpp()
 # while True:
 #     print("\n--- MENU FINANCEIRO ---")
 #     try:

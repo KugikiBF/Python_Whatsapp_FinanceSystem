@@ -23,26 +23,36 @@ def bot():
         if mensagem_usuario == '1':
             msg.body("*Balanço geral:*")
             sistema.grafico_lucro_wpp()
-            # msg.media(f'{base_url}static/lucro.png?v={randint(1,10000)}')
+            msg.media(f'{base_url}static/lucro.png?v={randint(1,10000)}')
             del estado_usuario[wpp_id]
 
         elif mensagem_usuario =='2':
             msg.body("*Gráfico por categoria:*")
             sistema.grafico_setor_wpp()
-            # msg.media(f'{base_url}static/pizza.png?v={randint(1,10000)}')
+            msg.media(f'{base_url}static/pizza.png?v={randint(1,10000)}')
             del estado_usuario[wpp_id]
 
         elif mensagem_usuario =='3':
             msg.body("*Gastos Pagos/Pendentes:*")
             sistema.grafico_gerais_wpp()
-            # msg.media(f'{base_url}static/gerais.png?v={randint(1,10000)}')
+            msg.media(f'{base_url}static/gerais.png?v={randint(1,10000)}')
             del estado_usuario[wpp_id]
         elif mensagem_usuario =='4':
-            msg.body('Saindo Do Menu...')
+            msg.body(f"{sistema.historico_contas()}")
             del estado_usuario[wpp_id]
         else:
-            msg.body("Opção inválida! Digite (*1 2 3*) para ver os gráficos ou *4* para sair.")
+            msg.body("Opção inválida! Digite (*1 2 3 4*) para ver os gráficos")
         return str(resp)
+
+    elif mensagem_usuario.lower() == 'excluir':
+        msg.body(f"{sistema.excluir_lançamento()}")
+
+
+    elif mensagem_usuario.lower().startswith("buscar:"):
+        termo=mensagem_usuario.split(":")[1].strip()
+        resposta=sistema.buscar_wpp(termo)
+        msg.body(resposta)
+
 
 
 
@@ -52,7 +62,7 @@ def bot():
 
     elif mensagem_usuario.lower() == 'resumo':
         estado_usuario[wpp_id] = 'MENU_GRAFICOS'
-        msg.body("📊 *Menu de Gráficos*\n\n1 - Balanço Geral (Barras)\n2 - Gastos por Categoria (Pizza)\n3 - Gastos pagos e pendentes (Barras)\n4 - SAIR \n\nDigite o número desejado:")
+        msg.body("📊 *Menu de Gráficos*\n\n1 - Balanço Geral (Barras)\n2 - Gastos por Categoria (Pizza)\n3 - Gastos pagos e pendentes (Barras)\n4 - Ver Histórico \n\nDigite o número desejado:")
         return str(resp)
         
 
@@ -80,4 +90,4 @@ def bot():
     return str(resp)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
