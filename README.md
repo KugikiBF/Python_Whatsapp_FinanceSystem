@@ -35,7 +35,7 @@ Este projeto é um assistente financeiro inteligente integrado ao WhatsApp que u
 Instalar dependências:
 
 Bash
-pip install flask pandas matplotlib openpyxl twilio
+pip install flask pandas matplotlib openpyxl twilio\n
 Estrutura de Pastas:
 Certifique-se de ter a pasta static/ criada na raiz para o armazenamento temporário dos gráficos gerados.
 
