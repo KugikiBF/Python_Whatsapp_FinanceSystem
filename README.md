@@ -43,8 +43,6 @@ Certifique-se de ter a pasta static/ criada na raiz para o armazenamento tempor�
 
 Execução:
 
-Bash
-
-python app.py
+Bash python app.py
 
 Nota de Desenvolvimento: O projeto encontra-se em transição de arquitetura (WhatsApp para Telegram) visando escalabilidade e redução de custos operacionais de API.
