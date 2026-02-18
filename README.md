@@ -34,16 +34,17 @@ A lógica de negócio utiliza **Excel como motor de banco de dados**, permitindo
 
 1. Clone o repositório:
    ```bash
-   git clone [https://github.com/KugikiBF/Python_Whatsapp_FinanceSystem
-]
+   git clone [https://github.com/KugikiBF/Python_Whatsapp_FinanceSystem]
+
 Instale as dependências:
 
-Bash
+'''bash
 pip install flask pandas matplotlib openpyxl twilio
-Configure o Webhook no Twilio para apontar para o seu servidor (ou utilize o Ngrok para túnel local):
+Configure o Webhook no Twilio para utilizar o Ngrok para túnel local:
 
-Bash
+'''bash
 python app.py
+
 🧠 Insights do Desenvolvedor
 A escolha do Excel em vez de um banco SQL tradicional foi uma decisão estratégica de Product Management: o usuário comum sente-se dono do dado quando pode abrir uma planilha. O desafio técnico foi garantir a integridade dos dados e a formatação automática das colunas via openpyxl a cada inserção.
 
