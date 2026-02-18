@@ -288,15 +288,23 @@ class ControleFinanceiro:
 
 
     def grafico_setor_wpp(self):
-        erro=self._verificar_df()
+        erro = self._verificar_df()
         if erro:
             return print(erro)
+            
         df_saidas = self.df[self.df['Tipo'] == 'Saida'].copy()
-        soma_por_categoria= df_saidas.groupby('Categoria')["Valor"].sum()
-        total=soma_por_categoria.sum()
+        if df_saidas.empty:
+            return "Sem dados de saída para gerar gráfico."
+
+        soma_por_categoria = df_saidas.groupby('Categoria')["Valor"].sum()
+        total = soma_por_categoria.sum()
+        quantidade_categorias = len(soma_por_categoria)
+        explode_dinamico = [0.1] * quantidade_categorias 
+        
         def formatar_legenda(pct):
             valor_real = (pct/100) * total
             return f'R$ {valor_real:.2f}\n({pct:.1f}%)'
+
         plt.figure(figsize=(8, 6))
         plt.pie(
             soma_por_categoria, 
@@ -305,10 +313,12 @@ class ControleFinanceiro:
             startangle=140,
             pctdistance=0.85,    
             labeldistance=1.1,
-            explode=[0.2, 0.2, 0.1, 0.2]
+            explode=explode_dinamico 
         )
+        
         plt.title("Gastos Por Setor")
         plt.ylabel('')
+        plt.tight_layout() 
         plt.savefig('static/pizza.png')
         plt.close('all')
         return 'pizza.png'
