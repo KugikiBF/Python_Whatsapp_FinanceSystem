@@ -1,52 +1,46 @@
-# 🤖 WhatsApp Financial Bot | Python & Flask
+# 🤖 WhatsApp Financial Bot (Twilio + Flask)
 
-[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/flask-%23000.svg?style=flat&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=flat&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Twilio](https://img.shields.io/badge/Twilio-F22F46?style=flat&logo=Twilio&logoColor=white)](https://www.twilio.com/)
+Este projeto é um assistente financeiro inteligente integrado ao WhatsApp que utiliza inteligência de dados para gerir gastos e entradas diretamente pelo chat. O sistema processa mensagens em tempo real, armazena informações em planilhas Excel e gera dashboards visuais de desempenho financeiro.
 
-> **Status do Projeto:** Pausado (Migrando para Telegram devido a limitações de cota da API Twilio). Este repositório preserva a arquitetura funcional integrada ao WhatsApp.
+## 🚀 Funcionalidades
 
-## 📝 Sobre o Projeto
-Este é um bot de controle financeiro inteligente operado inteiramente via WhatsApp. O objetivo foi criar uma ferramenta de alta acessibilidade para usuários que desejam gerir finanças pessoais sem a complexidade de aplicativos bancários ou planilhas manuais difíceis de operar no celular.
+- **Lançamentos Rápidos:** Registro de transações via texto simples (Ex: `50 Almoço Lazer`).
+- **Dashboard sob Demanda:** Geração de gráficos de pizza (gastos por setor) e barras (lucro vs. prejuízo) enviados diretamente no chat.
+- **Busca Avançada:** Localização de itens no histórico através do comando `buscar:`.
+- **Controle de Status:** Gestão de contas pagas e pendentes.
+- **Persistência em Excel:** Motor de dados baseado em `.xlsx`, facilitando a portabilidade para usuários leigos.
 
-A lógica de negócio utiliza **Excel como motor de banco de dados**, permitindo que o usuário final tenha controle total e visual sobre os dados gerados pelo bot de forma simples e familiar.
+## 🛠️ Tecnologias
 
-## ✨ Funcionalidades Principais
+- **Linguagem:** Python 3.x
+- **Framework Web:** Flask (Webhooks)
+- **Análise de Dados:** Pandas
+- **Gráficos:** Matplotlib (Engine Agg para renderização em servidor)
+- **Manipulação de Planilhas:** Openpyxl
+- **API de Mensageria:** Twilio API for WhatsApp
 
--   **Registro Rápido via Chat:** Adicione gastos ou ganhos enviando apenas: `Valor Descrição Categoria` (Ex: `50 Uber Lazer`).
--   **Dashboard Visual Dinâmico:** Geração automática de gráficos:
-    -   📊 Balanço Mensal (Lucro vs. Prejuízo).
-    -   🍕 Distribuição de Gastos por Categoria (Gráfico de Pizza).
-    -   📉 Status de Pagamentos (Pagos vs. Pendentes).
--   **Busca Inteligente:** Comando `buscar: termo` para encontrar lançamentos específicos rapidamente.
--   **Gestão de Estado:** Sistema de menu interativo que entende o contexto das mensagens do usuário.
--   **Exportação Transparente:** Todos os dados são salvos em um `.xlsx` formatado automaticamente via código.
+## 📋 Comandos do Bot
 
-## 🛠️ Tecnologias Utilizadas
+- `?`: Exibe o guia de funcionalidades e categorias.
+- `resumo`: Abre o menu interativo de gráficos.
+- `buscar: termo`: Filtra lançamentos pela descrição.
+- `excluir`: Remove o último lançamento realizado.
+- `Valor Descrição Categoria`: Formato padrão para adicionar novos registros.
 
--   **Backend:** Python com Microframework Flask.
--   **Data Science:** Pandas para manipulação de dados e análise financeira.
--   **Visualização:** Matplotlib para geração de gráficos salvos em buffer para envio via API.
--   **Integração de Mensageria:** Twilio API for WhatsApp (TwiML).
+## 🔧 Configuração e Instalação
 
-## 🚀 Como Executar (Local)
-
-1. Clone o repositório:
+1. **Clonar o repositório:**
    ```bash
-   git clone [https://github.com/KugikiBF/Python_Whatsapp_FinanceSystem]
+   git clone [https://github.com/KugikiBF/Python_Whatsapp_FinanceSystem.git]
+Instalar dependências:
 
-Instale as dependências:
+Bash
+pip install flask pandas matplotlib openpyxl twilio
+Estrutura de Pastas:
+Certifique-se de ter a pasta static/ criada na raiz para o armazenamento temporário dos gráficos gerados.
 
-    ```bash
-        pip install flask pandas matplotlib openpyxl twilio
-        Configure o Webhook no Twilio para utilizar o Ngrok para túnel local:
+Execução:
 
-    ```bash
-        python app.py
-    
-🧠 Insights do Desenvolvedor
-A escolha do Excel em vez de um banco SQL tradicional foi uma decisão estratégica de Product Management: o usuário comum sente-se dono do dado quando pode abrir uma planilha. O desafio técnico foi garantir a integridade dos dados e a formatação automática das colunas via openpyxl a cada inserção.
-
-Desenvolvido por Bruno Felipe Mafra Lacerda 📫 LinkedIn | GitHub
-
+Bash
+python app.py
+Nota de Desenvolvimento: O projeto encontra-se em transição de arquitetura (WhatsApp para Telegram) visando escalabilidade e redução de custos operacionais de API.
