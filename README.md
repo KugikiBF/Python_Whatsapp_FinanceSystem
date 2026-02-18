@@ -38,13 +38,13 @@ A lógica de negócio utiliza **Excel como motor de banco de dados**, permitindo
 
 Instale as dependências:
 
-'''bash
-pip install flask pandas matplotlib openpyxl twilio
-Configure o Webhook no Twilio para utilizar o Ngrok para túnel local:
+    ```bash
+        pip install flask pandas matplotlib openpyxl twilio
+        Configure o Webhook no Twilio para utilizar o Ngrok para túnel local:
 
-'''bash
-python app.py
-
+    ```bash
+        python app.py
+    
 🧠 Insights do Desenvolvedor
 A escolha do Excel em vez de um banco SQL tradicional foi uma decisão estratégica de Product Management: o usuário comum sente-se dono do dado quando pode abrir uma planilha. O desafio técnico foi garantir a integridade dos dados e a formatação automática das colunas via openpyxl a cada inserção.
 
